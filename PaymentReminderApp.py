@@ -17,7 +17,11 @@ class PaymentReminderApp(App):
     def build(self):
         # Configuración inicial
         self.title = "Recordatorio de Pagos"
-        self.store = JsonStore('payment_data.json')
+        # Guardamos los datos en la carpeta de usuario de la app para que
+        # funcione correctamente tanto en escritorio como en Android
+        store_path = os.path.join(self.user_data_dir, 'payment_data.json')
+        self.store = JsonStore(store_path)
+        self.editing_key = None
         
         # Layout principal
         self.main_layout = BoxLayout(orientation='vertical', spacing=10, padding=10)
@@ -53,7 +57,8 @@ class PaymentReminderApp(App):
         # Fecha de vencimiento
         self.date_layout = BoxLayout(orientation='horizontal', size_hint_y=None, height=40)
         self.date_layout.add_widget(Label(text="Vencimiento:", size_hint_x=0.3))
-        self.date_input = Button(text="Seleccionar fecha")
+        # Fecha actual como valor por defecto
+        self.date_input = Button(text=datetime.now().strftime('%d/%m/%Y'))
         self.date_input.bind(on_release=self.show_date_picker)
         self.date_layout.add_widget(self.date_input)
         self.form_layout.add_widget(self.date_layout)
@@ -122,7 +127,7 @@ class PaymentReminderApp(App):
         due_date = self.date_input.text
         frequency = self.freq_spinner.text
         
-        if not entity or not amount or due_date == "Seleccionar fecha":
+        if not entity or not amount or not due_date:
             self.show_message("Error", "Debe completar todos los campos obligatorios")
             return
         
@@ -130,6 +135,10 @@ class PaymentReminderApp(App):
             amount = float(amount)
         except ValueError:
             self.show_message("Error", "El monto debe ser un número válido")
+            return
+
+        if self.editing_key is None and self.store.exists(entity):
+            self.show_message("Error", "La entidad ya existe, utilice editar")
             return
         
         payment_data = {
@@ -143,6 +152,7 @@ class PaymentReminderApp(App):
         
         # Guardar en el almacenamiento
         self.store.put(entity, **payment_data)
+        self.editing_key = None
         self.show_message("Éxito", f"Pago para {entity} guardado correctamente")
         self.clear_form()
         self.load_entities()
@@ -152,7 +162,7 @@ class PaymentReminderApp(App):
         self.entity_input.text = ""
         self.desc_input.text = ""
         self.amount_input.text = ""
-        self.date_input.text = "Seleccionar fecha"
+        self.date_input.text = datetime.now().strftime('%d/%m/%Y')
         self.freq_spinner.text = "Mensual"
     
     def load_entities(self):
@@ -267,6 +277,7 @@ class PaymentReminderApp(App):
     def edit_entity(self, entity_key):
         """Carga los datos de una entidad para editarlos"""
         data = self.store.get(entity_key)
+        self.editing_key = entity_key
         self.entity_input.text = data['entity']
         self.desc_input.text = data['description']
         self.amount_input.text = str(data['amount'])
