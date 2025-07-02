@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Detalle{% endblock %}
+{% block content %}
+<h2>{{ entity.name }}</h2>
+<p>{{ entity.description }}</p>
+<p>Monto: {{ entity.amount }}</p>
+<p>Vencimiento: {{ entity.due_date }}</p>
+<p>Frecuencia: {{ entity.frequency }}</p>
+<h3>Historial de Pagos</h3>
+{% if history %}
+<table class="table">
+    <thead><tr><th>Fecha</th><th>Monto</th></tr></thead>
+    <tbody>
+        {% for h in history %}
+        <tr><td>{{ h.date }}</td><td>{{ h.amount }}</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No hay pagos registrados.</p>
+{% endif %}
+<form method="post" action="{{ url_for('register_payment', entity_id=entity.id) }}">
+    <div class="input-group mb-3">
+        <input class="form-control" type="number" step="0.01" name="amount" value="{{ entity.amount }}" required>
+        <button class="btn btn-success" type="submit">Registrar Pago</button>
+    </div>
+</form>
+{% endblock %}

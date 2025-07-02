@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}Inicio{% endblock %}
+{% block content %}
+<h2>Bienvenido, {{ user.username }}</h2>
+{% if entities %}
+<table class="table">
+    <thead>
+        <tr><th>Entidad</th><th>Monto</th><th>Vencimiento</th><th></th></tr>
+    </thead>
+    <tbody>
+        {% for e in entities %}
+        <tr>
+            <td>{{ e.name }}</td>
+            <td>{{ e.amount }}</td>
+            <td>{{ e.due_date }}</td>
+            <td><a href="{{ url_for('view_entity', entity_id=e.id) }}" class="btn btn-sm btn-info">Ver</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No hay entidades registradas.</p>
+{% endif %}
+{% endblock %}

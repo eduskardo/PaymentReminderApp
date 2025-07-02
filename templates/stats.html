@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block title %}Estadísticas{% endblock %}
+{% block content %}
+<h2>Estadísticas</h2>
+<ul>
+    <li>Total adeudado: {{ total_due }}</li>
+    <li>Total pagado: {{ total_paid }}</li>
+</ul>
+{% endblock %}

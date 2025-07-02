@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}Iniciar Sesión{% endblock %}
+{% block content %}
+<h2>Iniciar Sesión</h2>
+<form method="post">
+    <div class="mb-3">
+        <label class="form-label">Usuario</label>
+        <input class="form-control" type="text" name="username" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Contraseña</label>
+        <input class="form-control" type="password" name="password" required>
+    </div>
+    {% if error %}<div class="text-danger">{{ error }}</div>{% endif %}
+    <button class="btn btn-primary" type="submit">Entrar</button>
+    <a href="{{ url_for('register') }}" class="btn btn-link">Registrarse</a>
+</form>
+{% endblock %}
